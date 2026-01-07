@@ -1,4 +1,4 @@
-pipeline {
+tpipeline {
     agent any
 
     stages {
@@ -20,14 +20,14 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
-                sh 'docker build -t flask-app .'
+                sh 'docker build -t test-flask-app .'
             }
         }
 
         stage('Push Docker Image to ECR') {
             steps {
-                    sh 'aws ecr get-login-password --region <aws_region> | docker login --username AWS --password-stdin <aws_account_id>.dkr.ecr.<aws_region>.amazonaws.com'
-                    sh 'docker push <aws_account_id>.dkr.ecr.<aws_region>.amazonaws.com/<image_name>:latest'
+                    sh 'aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 992382545251.dkr.ecr.us-east-1.amazonaws.com/test-flask-app'
+                    sh 'docker push 992382545251.dkr.ecr.us-east-1.amazonaws.com/test-flask-app:latest'
             }
         }
 

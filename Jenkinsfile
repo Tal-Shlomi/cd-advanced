@@ -7,13 +7,12 @@ pipeline {
             steps {
                 checkout([
                     $class: 'GitSCM',
-                    branches: [[name: '*/master']],
+                    branches: [[name: '*/main']],
                     doGenerateSubmoduleConfigurations: false,
                     extensions: [],
                     submoduleCfg: [],
                     userRemoteConfigs: [[
-                        credentialsId: '<credentials_id>',
-                        url: 'https://github.com/<username>/<repo_name>.git'
+                        url: 'https://github.com/Tal-Shlomi/cd-advanced.git'
                     ]]
                 ])
             }
@@ -21,15 +20,13 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
-                sh 'docker build -t <image_name> .'
+                sh 'docker build -t flask-app .'
             }
         }
 
         stage('Push Docker Image to ECR') {
             steps {
-                withCredentials([
-                    aws(credentialsId: '<credentials_id>', region: '<aws_region>')
-                ]) {
+                    {
                     sh 'aws ecr get-login-password --region <aws_region> | docker login --username AWS --password-stdin <aws_account_id>.dkr.ecr.<aws_region>.amazonaws.com'
                     sh 'docker push <aws_account_id>.dkr.ecr.<aws_region>.amazonaws.com/<image_name>:latest'
                 }

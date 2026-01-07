@@ -30,6 +30,25 @@ pipeline {
                     sh 'docker push 992382545251.dkr.ecr.us-east-1.amazonaws.com/test-flask-app:latest'
             }
         }
+        stage('Pull Image from ECR on EC2') {
+            steps {
+                withCredentials([
+                    sshUserPrivateKey(
+                        credentialsId: '123',
+                        keyFileVariable: 'SSH_KEY_FILE'
+                    )
+                ]) {
+                    sh '''
+                        ssh -o StrictHostKeyChecking=no -i $SSH_KEY_FILE ec2-user@10.0.1.177 '
+                            aws ecr get-login-password --region us-east-1 | \
+                            docker login --username AWS --password-stdin \
+                            992382545251.dkr.ecr.us-east-1.amazonaws.com &&
+                            docker pull 992382545251.dkr.ecr.us-east-1.amazonaws.com/test-flask-app:latest
+                        '
+                    '''
+                }
+            }
+        }
 
         stage('Deploy Docker Container') {
             steps {
